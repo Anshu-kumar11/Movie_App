@@ -14,5 +14,15 @@ exports.createUser = async (req, res) => {
     return res.status(401).json({ error: "user already created" });
   }
   await newUser.save();
+
+  // Looking to send emails in production? Check out our Email API/SMTP product!
+  // var transport = nodemailer.createTransport({
+  //   host: "sandbox.smtp.mailtrap.io",
+  //   port: 2525,
+  //   auth: {
+  //     user: "5b373c07e7aee9",
+  //     pass: "7d3163507e4d4c",
+  //   },
+  // });
   res.status(201).json({ user: newUser });
 };
