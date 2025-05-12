@@ -12,17 +12,17 @@ const bcrypt = require("bcrypt");
 const emailVerificationTokenSchema = mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // <-- move it inside here
+    required: true,
   },
-  ref: "User",
-  required: true,
   token: {
     type: String,
     required: true,
   },
   createAt: {
     type: Date,
-    experries: 3600,
-    default: Date.now(),
+    expires: 3600, // also small typo here (experries → expires)
+    default: Date.now,
   },
 });
 
