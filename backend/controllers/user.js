@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const EmailVerificationToken = require("../models/emailVerificationToken");
-const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const PasswordResetToken = require("../models/passwordResetToken");
 const { generateOTP, generateMailTransporter } = require("../utils/mail");
-const { sendError } = require("../utils/helper");
+const { sendError, generateRandomBytes } = require("../utils/helper");
+const nodemailer = require("nodemailer");
 
 exports.createUser = async (req, res) => {
   try {
@@ -56,9 +58,13 @@ exports.VerifyEmail = async (req, res) => {
     if (user.isVerified) return sendError(res, "User already verified");
 
     const token = await EmailVerificationToken.findOne({ owner: userId });
+
     if (!token) return sendError(res, "Token not found");
+
     const isMatched = await token.compareToken(OTP);
+
     if (!isMatched) return sendError(res, "Please submit a valid OTP");
+
     user.isVerified = true;
     await user.save();
 
@@ -115,4 +121,41 @@ exports.resendEmailVerificationToken = async (req, res) => {
   });
 
   res.json({ message: "new otp has sent to you email!" });
+};
+
+exports.forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return sendError(res, "email is missing");
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return sendError(res, "user is missing", 404);
+  }
+
+  const alreadyHasToken = await PasswordResetToken.findOne({ owner: user._id });
+
+  if (alreadyHasToken) {
+    return sendError(res, "Only after one hour you can request another token.");
+  }
+
+  const token = await generateRandomBytes();
+
+  const newPasswordToken = new PasswordResetToken({ owner: user._id, token });
+
+  await newPasswordToken.save();
+
+  const resetPasswordUrl = `http://localhost:3000/resetpassword?token=${token}&id=${user._id}`; // FIXED: port should be 3000 (React default)
+
+  const transport = generateMailTransporter();
+
+  await transport.sendMail({
+    from: "verification@review.com",
+    to: user.email,
+    subject: "reset pasword token",
+    html: `<p>here is reset password url:</p><a href='${resetPasswordUrl}'>change password</a>`,
+  });
+
+  res.json({ message: "Link sent to your email!" });
 };
