@@ -6,6 +6,7 @@ const PasswordResetToken = require("../models/passwordResetToken");
 const { generateOTP, generateMailTransporter } = require("../utils/mail");
 const { sendError, generateRandomBytes } = require("../utils/helper");
 const nodemailer = require("nodemailer");
+const { match } = require("assert");
 
 exports.createUser = async (req, res) => {
   try {
@@ -158,4 +159,34 @@ exports.forgetPassword = async (req, res) => {
   });
 
   res.json({ message: "Link sent to your email!" });
+};
+
+exports.sendResetPasswordTokenStatus = (req, res) => {
+  res.json({ valid: true });
+};
+
+exports.resetPassword = async (req, res) => {
+  const { newPassword, userId } = req.body;
+  const user = await User.findById(userId);
+  const matched = await user.comparePassword(newPassword);
+
+  if (matched)
+    return sendError(
+      res,
+      "the new password must be different from the old one!"
+    );
+
+  user.password = newPassword;
+  await user.save();
+  await PasswordResetToken.findByIdAndDelete(req.resetToken._id);
+  const transport = generateMailTransporter();
+
+  await transport.sendMail({
+    from: "verification@review.com",
+    to: user.email,
+    subject: "password reset successfully",
+    html: `<p>password reset successfully</p><p>you can use new password</p>`,
+  });
+
+  res.json({ message: "password reset successfully!" });
 };
