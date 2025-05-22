@@ -4,6 +4,7 @@ const EmailVerificationToken = require("../models/emailVerificationToken");
 const crypto = require("crypto");
 const PasswordResetToken = require("../models/passwordResetToken");
 const { generateOTP, generateMailTransporter } = require("../utils/mail");
+const jwt = require("jsonwebtoken");
 const { sendError, generateRandomBytes } = require("../utils/helper");
 const nodemailer = require("nodemailer");
 const { match } = require("assert");
@@ -189,4 +190,20 @@ exports.resetPassword = async (req, res) => {
   });
 
   res.json({ message: "password reset successfully!" });
+};
+
+exports.signIn = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return sendError(res, "email/password mismatch");
+  }
+
+  const match = await user.comparePassword(password);
+  if (!match) {
+    return sendError(res, "email/password mismatch");
+  }
+  const { name, _id } = user;
+  const jwtToken = jwt.sign({ userId: user._id }, "aiygfwieukbfewiugfry");
+  res.json({ user: { id: _id, name, email, token: jwtToken } });
 };
