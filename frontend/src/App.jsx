@@ -1,7 +1,14 @@
 import React from "react";
+import NavBar from "./components/NavBar";
+import SignIn from "./components/auth/SignIn";
 
 const App = () => {
-  return <div className=" text-lg text-red-500">App</div>;
+  return (
+    <>
+      <NavBar />
+      <SignIn />
+    </>
+  );
 };
 
 export default App;
