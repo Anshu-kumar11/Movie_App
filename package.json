@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "express-async-errors": "^3.1.1",
-    "i": "^0.3.7",
-    "npm": "^11.4.1"
-  }
-}

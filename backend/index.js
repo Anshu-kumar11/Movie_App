@@ -3,7 +3,7 @@ const express = require("express");
 const userRouter = require("./routes/user");
 const { mongooseConnection } = require("./config/config");
 const { errorHandler } = require("./middlewares/error");
-require("express-async-errors");
+// require("express-async-errors");
 const app = express();
 const port = process.env.PORT;
 
