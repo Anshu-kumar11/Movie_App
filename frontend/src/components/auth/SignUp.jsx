@@ -4,12 +4,13 @@ import Title from "../../form/Title";
 import FormInput from "../../form/FormInput";
 import Submit from "../../form/Submit";
 
-const SignIn = () => {
+const SignUp = () => {
   return (
     <div className="fixed inset-0 bg-primary -z-20 flex justify-center items-center">
       <Container>
         <form action="" className="bg-secondary rounded p-6 w-72 space-y-6 ">
-          <Title>Sign In</Title>
+          <Title>Sign Up</Title>
+          <FormInput label={"Name"} placeholder={"Anshu"} name={"name"} />
           <FormInput
             label={"Email"}
             placeholder={"anshu@gmail.com"}
@@ -20,7 +21,7 @@ const SignIn = () => {
             placeholder={"****"}
             name={"password"}
           />
-          <Submit value={"Sign In"} />
+          <Submit value={"Sign Up"} />
           <div className="flex justify-between">
             <a
               className="text-dark-subtle hover:text-white transition"
@@ -32,7 +33,7 @@ const SignIn = () => {
               className="text-dark-subtle hover:text-white transition"
               href="#"
             >
-              Sign up
+              Sign In
             </a>
           </div>
         </form>
@@ -41,4 +42,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;
